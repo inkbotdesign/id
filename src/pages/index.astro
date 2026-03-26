@@ -3,48 +3,176 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+
+// You can fetch recent case studies or posts here later
+// const caseStudies = await getCollection('case-studies');
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={`${SITE_TITLE} | Strategic Branding Agency`} description={SITE_DESCRIPTION} />
+		
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "ProfessionalService",
+				"name": "Inkbot Design",
+				"image": "https://inkbotdesign.com/wp-content/uploads/2015/03/cropped-InkbotDesign_Logomark300.png",
+				"description": "Strategic branding agency specializing in brand identity, web design, and digital strategy.",
+				"url": "https://inkbotdesign.com",
+				"address": {
+					"@type": "PostalAddress",
+					"addressCountry": "UK"
+				}
+			}
+		</script>
 	</head>
 	<body>
 		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+		
+		<main id="main-content">
+			<section class="hero-section">
+				<img 
+					src="https://inkbotdesign.com/wp-content/uploads/2015/03/cropped-InkbotDesign_Logomark300.png" 
+					alt="Inkbot Design Brand Mark" 
+					width="120" 
+					height="120" 
+					class="hero-emblem"
+					fetchpriority="high"
+				/>
+				<h1>Strategic Branding that Drives Growth</h1>
+				<p class="lead-text">
+					We don't just design logos. We architect comprehensive brand identities that position your business for market dominance and measurable success.
+				</p>
+				<div class="hero-actions">
+					<a href="/contact" class="btn-primary">Start Your Project</a>
+					<a href="/portfolio" class="btn-secondary">View Our Work</a>
+				</div>
+			</section>
+
+			<hr />
+
+			<section class="services-overview">
+				<h2>Our Expertise</h2>
+				<p>Partnering with ambitious companies to deliver end-to-end brand transformation.</p>
+				
+				<div class="grid-layout">
+					<article class="service-card">
+						<h3>Brand Strategy</h3>
+						<p>Positioning, messaging, and market research to build a foundation that outlasts trends.</p>
+					</article>
+					<article class="service-card">
+						<h3>Identity Design</h3>
+						<p>Visual systems, logo design, and brand guidelines that command attention and build trust.</p>
+					</article>
+					<article class="service-card">
+						<h3>Digital Presence</h3>
+						<p>High-performance, SEO-optimized web development designed to convert visitors into clients.</p>
+					</article>
+				</div>
+			</section>
+
+			<hr />
+
+			<section class="trust-signals">
+				<h2>Trusted by Industry Leaders</h2>
+				<blockquote class="prose">
+					<p>"The strategic depth they brought to our rebrand was incredible. It wasn't just a visual update; it fundamentally changed how we communicate our value to the market."</p>
+					<footer>— <cite>Marketing Director, TechInnovate</cite></footer>
+				</blockquote>
+			</section>
+
+			<section class="cta-section">
+				<h2>Ready to elevate your brand?</h2>
+				<p>Let's discuss how a strategic approach to design can solve your toughest business challenges.</p>
+				<a href="/contact" class="btn-primary">Schedule a Consultation</a>
+			</section>
 		</main>
+
 		<Footer />
 	</body>
 </html>
+
+<style>
+	/* Component-specific styles scoped to the homepage.
+	  Global typography and colors are handled by your upgraded style.css.
+	*/
+	.hero-section {
+		text-align: center;
+		padding: var(--space-xl) 0;
+	}
+
+	.hero-emblem {
+		margin: 0 auto var(--space-md) auto;
+		border-radius: 50%;
+	}
+
+	.lead-text {
+		font-size: var(--step-1);
+		color: var(--text-muted);
+		max-width: 60ch;
+		margin: 0 auto var(--space-lg) auto;
+	}
+
+	.hero-actions {
+		display: flex;
+		gap: var(--space-md);
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
+	.btn-primary, .btn-secondary {
+		display: inline-block;
+		padding: 0.75rem 1.5rem;
+		border-radius: var(--radius-md);
+		font-weight: 600;
+		text-decoration: none;
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+	}
+
+	.btn-primary {
+		background-color: var(--brand-primary);
+		color: #ffffff;
+	}
+
+	.btn-primary:hover {
+		background-color: var(--brand-primary-dark);
+		color: #ffffff;
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-subtle);
+	}
+
+	.btn-secondary {
+		background-color: var(--surface-color);
+		color: var(--text-main);
+		border: 1px solid var(--border-color);
+	}
+
+	.btn-secondary:hover {
+		border-color: var(--brand-primary);
+		transform: translateY(-2px);
+	}
+
+	.grid-layout {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: var(--space-lg);
+		margin-top: var(--space-lg);
+	}
+
+	.service-card {
+		background: var(--surface-color);
+		padding: var(--space-lg);
+		border-radius: var(--radius-md);
+		border: 1px solid var(--border-color);
+	}
+
+	.cta-section {
+		text-align: center;
+		padding: var(--space-xl) 0;
+		background: var(--surface-color);
+		border-radius: var(--radius-md);
+		margin-top: var(--space-xl);
+	}
+</style>

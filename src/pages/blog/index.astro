@@ -2,110 +2,231 @@
 import BaseHead from '../../components/BaseHead.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
+import { SITE_TITLE } from '../../consts';
 import { getCollection } from 'astro:content';
 import FormattedDate from '../../components/FormattedDate.astro';
 
+// Fetch and sort posts chronologically
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+
+// Isolate the newest post to feature it structurally
+const featuredPost = posts[0];
+const remainingPosts = posts.slice(1);
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<style>
-			main {
-				width: 960px;
-			}
-			ul {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 2rem;
-				list-style-type: none;
-				margin: 0;
-				padding: 0;
-			}
-			ul li {
-				width: calc(50% - 1rem);
-			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
-			}
-			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
-			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
-				display: block;
-			}
-			.title {
-				margin: 0;
-				color: rgb(var(--black));
-				line-height: 1;
-			}
-			.date {
-				margin: 0;
-				color: rgb(var(--gray));
-			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
-			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
-			}
-			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
-				}
-				ul li {
-					width: 100%;
-					text-align: center;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
+		<BaseHead 
+			title={`Strategic Insights | ${SITE_TITLE}`} 
+			description="Expert thinking on brand identity, digital growth, and technical SEO from the Inkbot Design team." 
+		/>
+		
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "Blog",
+				"name": "Inkbot Design Insights",
+				"description": "Expert thinking on brand identity, digital growth, and technical SEO.",
+				"url": "https://inkbotdesign.com/blog",
+				"publisher": {
+					"@type": "Organization",
+					"name": "Inkbot Design",
+					"logo": {
+						"@type": "ImageObject",
+						"url": "https://inkbotdesign.com/wp-content/uploads/2015/03/cropped-InkbotDesign_Logomark300.png"
+					}
 				}
 			}
-		</style>
+		</script>
 	</head>
 	<body>
 		<Header />
-		<main>
-			<section>
-				<ul>
+		<main class="blog-container">
+			
+			<header class="blog-header">
+				<h1>Strategic Insights</h1>
+				<p class="lead-text">Expert thinking on brand identity, technical SEO, and building high-performance digital experiences.</p>
+			</header>
+
+			{featuredPost && (
+				<section class="featured-section">
+					<h2 class="sr-only">Latest Insight</h2>
+					<article class="featured-post">
+						<a href={`/blog/${featuredPost.id}/`} class="post-link">
+							<div class="image-wrapper">
+								<img 
+									width={1200} 
+									height={600} 
+									src={featuredPost.data.heroImage} 
+									alt={`Cover image for ${featuredPost.data.title}`} 
+									fetchpriority="high"
+								/>
+							</div>
+							<div class="post-content featured-content">
+								<span class="badge">Latest Article</span>
+								<h3 class="title">{featuredPost.data.title}</h3>
+								<p class="date"><FormattedDate date={featuredPost.data.pubDate} /></p>
+								<span class="read-more">Read Article &rarr;</span>
+							</div>
+						</a>
+					</article>
+				</section>
+			)}
+
+			<hr class="section-divider" />
+
+			<section class="archive-section">
+				<h2 class="sr-only">Previous Articles</h2>
+				<div class="post-grid">
 					{
-						posts.map((post) => (
-							<li>
-								<a href={`/blog/${post.id}/`}>
-									<img width={720} height={360} src={post.data.heroImage} alt="" />
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
+						remainingPosts.map((post) => (
+							<article class="post-card">
+								<a href={`/blog/${post.id}/`} class="post-link">
+									<div class="image-wrapper">
+										<img 
+											width={720} 
+											height={360} 
+											src={post.data.heroImage} 
+											alt={`Cover image for ${post.data.title}`} 
+											loading="lazy"
+										/>
+									</div>
+									<div class="post-content">
+										<h4 class="title">{post.data.title}</h4>
+										<p class="date">
+											<FormattedDate date={post.data.pubDate} />
+										</p>
+									</div>
 								</a>
-							</li>
+							</article>
 						))
 					}
-				</ul>
+				</div>
 			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	/* Layout & Spacing */
+	.blog-container {
+		max-width: 1000px; /* Slightly wider for editorial feel */
+		margin: 0 auto;
+		padding: var(--space-xl, 4rem) var(--space-md, 1rem);
+	}
+
+	.blog-header {
+		text-align: center;
+		margin-bottom: var(--space-xl, 4rem);
+	}
+
+	.lead-text {
+		font-size: var(--step-1, 1.25rem);
+		color: var(--text-muted, #4b5563);
+		max-width: 60ch;
+		margin: 0 auto;
+	}
+
+	.section-divider {
+		margin: var(--space-xl, 4rem) 0;
+		border: none;
+		border-top: 1px solid var(--border-color, #e5e7eb);
+	}
+
+	/* Shared Post Styles */
+	.post-link {
+		display: block;
+		text-decoration: none;
+		color: inherit;
+		group: post; /* For modern CSS nesting/hover states if supported */
+	}
+
+	.image-wrapper {
+		border-radius: var(--radius-md, 8px);
+		overflow: hidden;
+		margin-bottom: var(--space-md, 1rem);
+		background-color: var(--surface-color, #f3f4f6); /* Placeholder color while loading */
+	}
+
+	.image-wrapper img {
+		width: 100%;
+		height: auto;
+		display: block;
+		transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+		object-fit: cover;
+	}
+
+	.post-link:hover .image-wrapper img {
+		transform: scale(1.03); /* Premium zoom effect on hover */
+	}
+
+	.title {
+		margin: 0 0 0.25rem 0;
+		color: var(--text-main, #111827);
+		line-height: 1.3;
+		transition: color 0.2s ease;
+	}
+
+	.date {
+		margin: 0;
+		font-size: 0.875rem;
+		color: var(--text-muted, #4b5563);
+	}
+
+	.post-link:hover .title {
+		color: var(--brand-primary, #2337ff);
+	}
+
+	/* Featured Post (Latest) */
+	.featured-post .image-wrapper img {
+		aspect-ratio: 2 / 1; /* Creates a cinematic wide banner for the newest post */
+	}
+
+	.featured-content {
+		text-align: center;
+		max-width: 800px;
+		margin: var(--space-md, 1.5rem) auto 0;
+	}
+
+	.featured-content .title {
+		font-size: var(--step-3, 2rem);
+		margin: 0.5rem 0;
+	}
+
+	.badge {
+		display: inline-block;
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		font-weight: 700;
+		color: var(--brand-primary, #2337ff);
+		margin-bottom: 0.5rem;
+	}
+
+	.read-more {
+		display: inline-block;
+		margin-top: 0.75rem;
+		font-weight: 600;
+		color: var(--brand-primary, #2337ff);
+		font-size: 0.9em;
+	}
+
+	/* Post Grid */
+	.post-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: var(--space-lg, 2rem);
+	}
+
+	.post-card .image-wrapper img {
+		aspect-ratio: 16 / 9;
+	}
+
+	.post-card .title {
+		font-size: var(--step-1, 1.25rem);
+	}
+</style>

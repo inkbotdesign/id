@@ -5,81 +5,228 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & {
+	// We can optionally pass an author, defaulting to the Creative Director
+	author?: string; 
+};
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { 
+	title, 
+	description, 
+	pubDate, 
+	updatedDate, 
+	heroImage,
+	author = "Stuart Crawford"
+} = Astro.props;
+
+// Construct full absolute URL for the schema image
+const schemaImageUrl = heroImage ? new URL(heroImage, Astro.url).toString() : '';
 ---
 
+<!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
+		<BaseHead 
+			title={`${title} | Inkbot Design Insights`} 
+			description={description} 
+			image={heroImage}
+			type="article"
+			author={author}
+			publishDate={pubDate}
+		/>
+
+		<script type="application/ld+json" set:html={JSON.stringify({
+			"@context": "https://schema.org",
+			"@type": "BlogPosting",
+			"mainEntityOfPage": {
+				"@type": "WebPage",
+				"@id": Astro.url
+			},
+			"headline": title,
+			"description": description,
+			"image": schemaImageUrl ? [schemaImageUrl] : [],
+			"datePublished": pubDate.toISOString(),
+			"dateModified": updatedDate ? updatedDate.toISOString() : pubDate.toISOString(),
+			"author": {
+				"@type": "Person",
+				"name": author,
+				"url": new URL("/about", Astro.site).toString()
+			},
+			"publisher": {
+				"@type": "Organization",
+				"name": "Inkbot Design",
+				"logo": {
+					"@type": "ImageObject",
+					"url": "https://inkbotdesign.com/wp-content/uploads/2015/03/cropped-InkbotDesign_Logomark300.png"
+				}
 			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
+		})} />
 	</head>
 
 	<body>
 		<Header />
-		<main>
+		<main class="article-container">
 			<article>
-				<div class="hero-image">
-					{heroImage && <img width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
+				<header class="article-header">
+					<div class="meta-data">
+						<span class="date">
+							Published <FormattedDate date={pubDate} />
+						</span>
+						{
+							updatedDate && (
+								<span class="last-updated-on">
+									(Updated <FormattedDate date={updatedDate} />)
+								</span>
+							)
+						}
 					</div>
+					
+					<h1 class="article-title">{title}</h1>
+					<p class="article-description">{description}</p>
+
+					{heroImage && (
+						<div class="hero-image-wrapper">
+							<img 
+								width={1200} 
+								height={630} 
+								src={heroImage} 
+								alt={`Illustration for ${title}`} 
+								fetchpriority="high"
+							/>
+						</div>
+					)}
+				</header>
+
+				<div class="prose">
 					<slot />
 				</div>
+
+				<footer class="author-block">
+					<div class="author-info">
+						<h3>Written by {author}</h3>
+						<p>
+							Creative Director at Inkbot Design, a strategic branding and digital agency based in Belfast, UK. Specializing in semantic SEO, high-performance web architecture, and purpose-driven brand identity.
+						</p>
+					</div>
+				</footer>
 			</article>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	/* --- Layout & Spacing --- */
+	.article-container {
+		width: 100%;
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: var(--space-xl, 4rem) var(--space-md, 1rem);
+	}
+
+	/* --- Article Header --- */
+	.article-header {
+		text-align: center;
+		max-width: 800px;
+		margin: 0 auto var(--space-xl, 4rem) auto;
+	}
+
+	.meta-data {
+		font-size: 0.9rem;
+		color: var(--text-muted, #4b5563);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		font-weight: 600;
+		margin-bottom: var(--space-md, 1rem);
+		display: block;
+	}
+
+	.article-title {
+		font-size: var(--step-4, 3rem);
+		margin-bottom: var(--space-sm, 0.5rem);
+		line-height: 1.1;
+		color: var(--text-main, #111827);
+		text-wrap: balance;
+	}
+
+	.article-description {
+		font-size: var(--step-1, 1.25rem);
+		color: var(--text-muted, #4b5563);
+		margin-bottom: var(--space-lg, 2rem);
+		text-wrap: balance;
+	}
+
+	/* --- Hero Image --- */
+	.hero-image-wrapper {
+		margin-top: var(--space-lg, 2rem);
+		border-radius: var(--radius-md, 12px);
+		overflow: hidden;
+		box-shadow: var(--shadow-subtle, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+	}
+
+	.hero-image-wrapper img {
+		display: block;
+		width: 100%;
+		height: auto;
+		aspect-ratio: 16 / 9;
+		object-fit: cover;
+	}
+
+	/* --- Typography & Content (The "Prose" area) --- */
+	.prose {
+		max-width: 70ch; /* The golden ratio for reading length */
+		margin: 0 auto;
+		font-size: var(--step-0, 1.125rem);
+		line-height: 1.8;
+		color: var(--text-main, #111827);
+	}
+
+	/* Style overrides for markdown content injected into the slot */
+	.prose :global(h2) {
+		margin-top: var(--space-xl, 3rem);
+		margin-bottom: var(--space-md, 1rem);
+		color: var(--brand-primary-dark, #000d8a);
+	}
+
+	.prose :global(h3) {
+		margin-top: var(--space-lg, 2rem);
+	}
+
+	.prose :global(p) {
+		margin-bottom: var(--space-md, 1.5rem);
+	}
+
+	.prose :global(img) {
+		border-radius: var(--radius-md, 8px);
+		margin: var(--space-lg, 2rem) 0;
+	}
+
+	.prose :global(a) {
+		color: var(--brand-primary, #2337ff);
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 3px;
+	}
+
+	/* --- Author Block (E-E-A-T) --- */
+	.author-block {
+		max-width: 70ch;
+		margin: var(--space-xl, 4rem) auto 0 auto;
+		padding: var(--space-lg, 2rem);
+		background-color: var(--surface-color, #f3f4f6);
+		border-radius: var(--radius-md, 8px);
+		border-left: 4px solid var(--brand-primary, #2337ff);
+	}
+
+	.author-info h3 {
+		margin: 0 0 0.5rem 0;
+		font-size: var(--step-1, 1.25rem);
+	}
+
+	.author-info p {
+		margin: 0;
+		font-size: 0.95rem;
+		color: var(--text-muted, #4b5563);
+		line-height: 1.6;
+	}
+</style>
